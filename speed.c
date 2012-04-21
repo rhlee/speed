@@ -14,6 +14,7 @@ void finally();
 int main(int argc, char *argv[])
 {
   double factor = (double)1001 / (double)960;
+  factor *= (1 + (0.5 / (90.0 * 60.0)));
   
   inputFile = fopen("sample.wav", "r");
   outputFile = fopen("test.wav", "w");
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
   short channel[2], previousChannel[2];
   for(outputSample = 0; 1; outputSample++)
   {
-    inputTime = factor * ((long)outputSample + 0.5);
+    inputTime = factor * ((double)outputSample + 0.5);
     inputSampleFloor = floor(inputTime);
     while(inputSample < inputSampleFloor)
     {
@@ -61,7 +62,7 @@ void sigInt(int signal)
   if((interrupt - lastInterrupt) < 1.0) finally();
   lastInterrupt = interrupt;
 
-  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n", inputSampleFloor / 1048576.0);
+  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n", inputSampleFloor / 262144.0);
 }
 
 void finally()
