@@ -2,17 +2,19 @@
 #include <stdlib.h>
 #include <math.h>
 #include <signal.h>
+#include <sys/time.h>
 
+FILE *inputFile, *outputFile;
 long inputSampleFloor;
+long double lastInterrupt;
 
 void sigInt(int signal);
+void finally();
 
 int main(int argc, char *argv[])
 {
   double factor = (double)1001 / (double)960;
   
-  FILE *inputFile, *outputFile;
-
   inputFile = fopen("sample.wav", "r");
   outputFile = fopen("test.wav", "w");
   if(setvbuf(inputFile, NULL, _IOFBF, 4096) ||
@@ -39,12 +41,7 @@ int main(int argc, char *argv[])
     inputSampleFloor = floor(inputTime);
     while(inputSample < inputSampleFloor)
     {
-      if(fread(channel, 2, 2, inputFile) != 2)
-      {
-        fclose(inputFile);
-        fclose(outputFile);
-        exit(0);
-      }
+      if(fread(channel, 2, 2, inputFile) != 2) finally();
       previousChannel[0] = channel[0];
 //      previousChannel[1] = channel[1];
       inputSample++;
@@ -53,13 +50,21 @@ int main(int argc, char *argv[])
 //    printf("%ld\n", inputSample);
   }
 
-  fclose(inputFile);
-  fclose(outputFile);
-  return 0;
+  finally();
 }
 
 void sigInt(int signal)
 {
-  fprintf(stderr, "hello\n");
+  struct timeval time;
+  gettimeofday(&time, NULL);
+  long double interrupt = time.tv_sec + (time.tv_usec / 1000000.0);
+  
+  finally();
+}
+
+void finally()
+{
+  fclose(inputFile);
+  fclose(outputFile);
   exit(0);
 }
