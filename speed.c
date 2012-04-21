@@ -60,8 +60,8 @@ void sigInt(int signal)
   long double interrupt = time.tv_sec + (time.tv_usec / 1000000.0);
   if((interrupt - lastInterrupt) < 1.0) finally();
   lastInterrupt = interrupt;
-  
-//  finally();
+
+  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n", inputSampleFloor / 1048576.0);
 }
 
 void finally()
