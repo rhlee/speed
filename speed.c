@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <signal.h>
+
+long inputSampleFloor;
+
+void sigInt(int signal);
 
 int main(int argc, char *argv[])
 {
@@ -23,10 +28,12 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  long inputSample = -1, outputSample = 0, inputSampleFloor;
+  signal(SIGINT, sigInt);
+
+  long inputSample = -1, outputSample = 0;
   double inputTime;
-  short channel[2];
-  for(outputSample = 0; outputSample < 100; outputSample++)
+  short channel[2], previousChannel[2];
+  for(outputSample = 0; 1; outputSample++)
   {
     inputTime = factor * ((long)outputSample + 0.5);
     inputSampleFloor = floor(inputTime);
@@ -38,12 +45,21 @@ int main(int argc, char *argv[])
         fclose(outputFile);
         exit(0);
       }
+      previousChannel[0] = channel[0];
+//      previousChannel[1] = channel[1];
       inputSample++;
     }
-    printf("%ld\n", inputSample);
+    fwrite(channel, 2, 2, outputFile);
+//    printf("%ld\n", inputSample);
   }
 
   fclose(inputFile);
   fclose(outputFile);
   return 0;
+}
+
+void sigInt(int signal)
+{
+  fprintf(stderr, "hello\n");
+  exit(0);
 }
