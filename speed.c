@@ -25,11 +25,22 @@ int main(int argc, char *argv[])
 
   long inputSample = -1, outputSample = 0, inputSampleFloor;
   double inputTime;
-  factor = 2;
-  for(outputSample = 0; outputSample < 10; outputSample++)
+  short channel[2];
+  for(outputSample = 0; outputSample < 100; outputSample++)
   {
     inputTime = factor * ((long)outputSample + 0.5);
-    printf("%f\n", inputTime);
+    inputSampleFloor = floor(inputTime);
+    while(inputSample < inputSampleFloor)
+    {
+      if(fread(channel, 2, 2, inputFile) != 2)
+      {
+        fclose(inputFile);
+        fclose(outputFile);
+        exit(0);
+      }
+      inputSample++;
+    }
+    printf("%ld\n", inputSample);
   }
 
   fclose(inputFile);
