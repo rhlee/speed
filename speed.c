@@ -58,8 +58,10 @@ void sigInt(int signal)
   struct timeval time;
   gettimeofday(&time, NULL);
   long double interrupt = time.tv_sec + (time.tv_usec / 1000000.0);
+  if((interrupt - lastInterrupt) < 1.0) finally();
+  lastInterrupt = interrupt;
   
-  finally();
+//  finally();
 }
 
 void finally()
