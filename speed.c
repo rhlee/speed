@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 FILE *inputFile, *outputFile;
-long inputSampleFloor;
+long inputLowerSample;
 long double lastInterrupt;
 
 void sigInt(int signal);
@@ -13,7 +13,7 @@ void finally();
 
 int main(int argc, char *argv[])
 {
-  double factor = (double)1001 / (double)960;
+  double factor = 1001.0 / 960.0;
   factor *= (1 + (0.5 / (90.0 * 60.0)));
   
   inputFile = fopen("sample.wav", "r");
@@ -35,19 +35,21 @@ int main(int argc, char *argv[])
 
   long inputSample = -1, outputSample = 0;
   double inputTime;
-  short channel[2], previousChannel[2];
+  short lowerInputChannel[2], upperInputChannel[2], outputChannel[2];
   for(outputSample = 0; 1; outputSample++)
   {
-    inputTime = factor * ((double)outputSample + 0.5);
-    inputSampleFloor = floor(inputTime);
-    while(inputSample < inputSampleFloor)
+    inputTime = factor * (outputSample + 0.5);
+    inputLowerSample = floor(inputTime - 0.5);
+    while(inputSample < (inputLowerSample + 1))
     {
-      if(fread(channel, 2, 2, inputFile) != 2) finally();
-      previousChannel[0] = channel[0];
-//      previousChannel[1] = channel[1];
+      lowerInputChannel[0] = upperInputChannel[0];
+      lowerInputChannel[1] = upperInputChannel[1];
+      if(fread(upperInputChannel, 2, 2, inputFile) != 2) finally();
       inputSample++;
     }
-    fwrite(channel, 2, 2, outputFile);
+    outputChannel[0] = ((upperInputChannel[0] - lowerInputChannel[0]) * (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[0];
+    outputChannel[1] = ((upperInputChannel[1] - lowerInputChannel[1]) * (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
+    fwrite(outputChannel, 2, 2, outputFile);
 //    printf("%ld\n", inputSample);
   }
 
@@ -62,7 +64,7 @@ void sigInt(int signal)
   if((interrupt - lastInterrupt) < 1.0) finally();
   lastInterrupt = interrupt;
 
-  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n", inputSampleFloor / 262144.0);
+  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n", inputLowerSample / 262144.0);
 }
 
 void finally()
