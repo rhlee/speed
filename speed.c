@@ -13,7 +13,7 @@ void finally();
 
 int main(int argc, char *argv[])
 {
-  double factor = (double)1001 / (double)960;
+  long double factor = 1001.0 / 960.0 * (1 + (0.5 / (90.0 * 60.0)));
   
   inputFile = fopen("sample.wav", "r");
   outputFile = fopen("test.wav", "w");
@@ -33,11 +33,11 @@ int main(int argc, char *argv[])
   signal(SIGINT, sigInt);
 
   long inputSample = -1, outputSample = 0;
-  double inputTime;
+  long double inputTime;
   short channel[2], previousChannel[2];
   for(outputSample = 0; 1; outputSample++)
   {
-    inputTime = factor * ((long)outputSample + 0.5);
+    inputTime = factor * ((long double)outputSample + 0.5);
     inputSampleFloor = floor(inputTime);
     while(inputSample < inputSampleFloor)
     {
