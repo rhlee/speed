@@ -47,10 +47,11 @@ int main(int argc, char *argv[])
       if(fread(upperInputChannel, 2, 2, inputFile) != 2) finally();
       inputSample++;
     }
-    outputChannel[0] = ((upperInputChannel[0] - lowerInputChannel[0]) * (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[0];
-    outputChannel[1] = ((upperInputChannel[1] - lowerInputChannel[1]) * (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
+    outputChannel[0] = ((upperInputChannel[0] - lowerInputChannel[0]) *
+      (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[0];
+    outputChannel[1] = ((upperInputChannel[1] - lowerInputChannel[1]) *
+      (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
     fwrite(outputChannel, 2, 2, outputFile);
-//    printf("%ld\n", inputSample);
   }
 
   finally();
@@ -64,7 +65,8 @@ void sigInt(int signal)
   if((interrupt - lastInterrupt) < 1.0) finally();
   lastInterrupt = interrupt;
 
-  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n", inputLowerSample / 262144.0);
+  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n",
+    inputLowerSample / 262144.0);
 }
 
 void finally()
