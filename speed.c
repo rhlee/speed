@@ -12,7 +12,6 @@ long double lastInterrupt;
 
 void error(int line, char * file);
 
-void sigInt(int signal);
 void finally();
 void *progress(void *ptr);
 
@@ -37,7 +36,6 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  signal(SIGINT, sigInt);
   if(pthread_create(&progressThread, NULL, progress, NULL) != 0)
     error(__LINE__, __FILE__);
 
@@ -65,18 +63,6 @@ int main(int argc, char *argv[])
   }
 
   finally();
-}
-
-void sigInt(int signal)
-{
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  long double interrupt = time.tv_sec + (time.tv_usec / 1000000.0);
-  if((interrupt - lastInterrupt) < 1.0) finally();
-  lastInterrupt = interrupt;
-
-  fprintf(stderr, "\nProcessed %.1fM (Press CTRL+C twice to exit)\n",
-    inputLowerSample / 262144.0);
 }
 
 void finally()
