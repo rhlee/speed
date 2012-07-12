@@ -55,10 +55,12 @@ int main(int argc, char *argv[])
       if(fread(upperInputChannel, 2, 2, inputFile) != 2) finally();
       inputSample++;
     }
-    outputChannel[0] = ((upperInputChannel[0] - lowerInputChannel[0]) *
-      (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[0];
-    outputChannel[1] = ((upperInputChannel[1] - lowerInputChannel[1]) *
-      (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
+    outputChannel[0] =
+      ((upperInputChannel[0] - lowerInputChannel[0]) *
+        (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[0];
+    outputChannel[1] =
+      ((upperInputChannel[1] - lowerInputChannel[1]) *
+        (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
     fwrite(outputChannel, 2, 2, outputFile);
   }
 
@@ -86,8 +88,12 @@ void finally()
 
 void *progress(void *ptr)
 {
-  printf("ohayo");
-  fflush(stdout);
+  char c;
+  while(c = getchar())
+  {
+    if(c == '\n')
+      printf("Processed %.1fM", inputLowerSample / 262144.0);
+  }
   return NULL;
 }
 
