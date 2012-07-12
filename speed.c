@@ -19,21 +19,22 @@ int main(int argc, char *argv[])
   double factor = 1001.0 / 960.0;
   factor *= (1 + (0.5 / (90.0 * 60.0)));
   
-  inputFile = fopen("sample.wav", "r");
-  outputFile = fopen("test.wav", "w");
+  if((inputFile = fopen("sample.wav", "r")) == NULL)
+    error(__LINE__, __FILE__);
+  if((outputFile = fopen("test.wav", "w")) == NULL)
+    error(__LINE__, __FILE__);
+    
   if(setvbuf(inputFile, NULL, _IOFBF, 4096) ||
     setvbuf(outputFile, NULL, _IOFBF, 4096))
-  {
-    perror("Could not set file buffer\n");
-    exit(1);
-  }
+    error(__LINE__, __FILE__);
 
   if(sizeof(short) != 2)
   {
-    perror("Short is not 2 bytes\n");
+    fprintf(stderr, "Short is not 2 bytes\n");
     exit(1);
   }
 
+  printf("Press enter to see progress, ctrl-c to quit");
   if(pthread_create(&progressThread, NULL, progress, NULL) != 0)
     error(__LINE__, __FILE__);
 
