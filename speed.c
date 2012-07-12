@@ -6,17 +6,15 @@
 #include <errno.h>
 #include <string.h>
 
-FILE *inputFile, *outputFile;
-long inputLowerSample;
-long double lastInterrupt;
-
 void error(int line, char * file);
 
-void finally();
 void *progress(void *ptr);
+
+long inputLowerSample;
 
 int main(int argc, char *argv[])
 {
+  FILE *inputFile, *outputFile;
   pthread_t progressThread;
   double factor = 1001.0 / 960.0;
   factor *= (1 + (0.5 / (90.0 * 60.0)));
@@ -50,7 +48,8 @@ int main(int argc, char *argv[])
     {
       lowerInputChannel[0] = upperInputChannel[0];
       lowerInputChannel[1] = upperInputChannel[1];
-      if(fread(upperInputChannel, 2, 2, inputFile) != 2) finally();
+      if(fread(upperInputChannel, 2, 2, inputFile) != 2)
+        exit(0);
       inputSample++;
     }
     outputChannel[0] =
@@ -61,15 +60,6 @@ int main(int argc, char *argv[])
         (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
     fwrite(outputChannel, 2, 2, outputFile);
   }
-
-  finally();
-}
-
-void finally()
-{
-  fclose(inputFile);
-  fclose(outputFile);
-  exit(0);
 }
 
 void *progress(void *ptr)
