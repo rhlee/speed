@@ -3,16 +3,22 @@
 #include <math.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <errno.h>
+#include <string.h>
 
 FILE *inputFile, *outputFile;
 long inputLowerSample;
 long double lastInterrupt;
 
+void error(int line, char * file);
+
 void sigInt(int signal);
 void finally();
+void *progress(void *ptr);
 
 int main(int argc, char *argv[])
 {
+  pthread_t progressThread;
   double factor = 1001.0 / 960.0;
   factor *= (1 + (0.5 / (90.0 * 60.0)));
   
@@ -32,6 +38,8 @@ int main(int argc, char *argv[])
   }
 
   signal(SIGINT, sigInt);
+  if(pthread_create(&progressThread, NULL, progress, NULL) != 0)
+    error(__LINE__, __FILE__);
 
   long inputSample = -1, outputSample = 0;
   double inputTime;
@@ -74,4 +82,20 @@ void finally()
   fclose(inputFile);
   fclose(outputFile);
   exit(0);
+}
+
+void *progress(void *ptr)
+{
+  printf("ohayo");
+  fflush(stdout);
+  return NULL;
+}
+
+void error(int line, char * file)
+{
+  printf("[%s:%i] Last set error code is %i: %s\n"
+    "Use gdb to catch this SIGTRAP\n",
+    file, line, errno, strerror(errno));
+  __asm__("int3");
+  exit(errno);
 }

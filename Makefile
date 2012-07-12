@@ -1,8 +1,2 @@
-CC=gcc
-CFLAGS=-Wall
-LDLIBS=-lm
-
-main: speed
-
-clean:
-	rm -f speed
+all:
+	gcc speed.c -lm -lpthread -o speed
