@@ -100,6 +100,8 @@ int main(int argc, char *argv[])
         (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
     fwrite(outputChannel, 2, 2, outputFile);
   }
+
+  exit(0);
 }
 
 void *progress(void *ptr)
