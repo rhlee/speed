@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
 {
   double fiddleFactor = 1, factor;
   int nom, denom;
+  FILE *inputFile, *outputFile;
+  pthread_t progressThread;
 
   if(argc == 1 ||
     (argc == 2 && (
@@ -33,7 +35,8 @@ int main(int argc, char *argv[])
   while(getopt(argc, argv, "f:") != -1)
   {
     if(optarg == NULL) exit(1);
-    if((sscanf(optarg, "%lf", &fiddleFactor) != 1) || (fiddleFactor <= 0))
+    if((sscanf(optarg, "%lf", &fiddleFactor) != 1) ||
+      (fiddleFactor <= 0))
     {
       printf("%s", err_argf);
       exit(1);
@@ -53,15 +56,11 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  return 0;
-
-  FILE *inputFile, *outputFile;
-  pthread_t progressThread;
-  factor *= (1 + (0.5 / (90.0 * 60.0)));
+  factor = nom / denom * fiddleFactor;
   
-  if((inputFile = fopen("sample.wav", "r")) == NULL)
+  if((inputFile = fopen(argv[optind++], "r")) == NULL)
     error(__LINE__, __FILE__);
-  if((outputFile = fopen("test.wav", "w")) == NULL)
+  if((outputFile = fopen(argv[optind], "w")) == NULL)
     error(__LINE__, __FILE__);
     
   if(setvbuf(inputFile, NULL, _IOFBF, 4096) ||
