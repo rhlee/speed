@@ -1,2 +1,2 @@
 all:
-	gcc speed.c -lm -lpthread -o speed
+	gcc -g speed.c -lm -lpthread -o speed

@@ -2,7 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <errno.h>
+#include <unistd.h>
 #include <string.h>
+
+char usage[] =
+  "Usage:\n";
+char err_argf[] =
+  "f has to be summin\n";
 
 void error(int line, char * file);
 
@@ -12,6 +18,35 @@ long inputLowerSample;
 
 int main(int argc, char *argv[])
 {
+  double d;
+
+  if(argc == 1 ||
+    (argc == 2 && (
+      !strncmp(argv[1], "-h", 3) ||
+      !strncmp(argv[1], "--help", 3) )))
+  {
+    printf("%s", usage);
+    exit(0);
+  }
+
+  while(getopt(argc, argv, "f:") != -1)
+  {
+    if(optarg == NULL) exit(1);
+    if((sscanf(optarg, "%lf", &d) != 1) || (d <= 0))
+    {
+      printf("%s", err_argf);
+      exit(1);
+    }
+  }
+
+  if(argc - optind != 3)
+  {
+    printf("%s", usage);
+    exit(1);
+  }
+
+  return 0;
+
   FILE *inputFile, *outputFile;
   pthread_t progressThread;
   double factor = 1001.0 / 960.0;
