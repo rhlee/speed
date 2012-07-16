@@ -18,7 +18,8 @@ long inputLowerSample;
 
 int main(int argc, char *argv[])
 {
-  double d;
+  double fiddleFactor = 1, factor;
+  int nom, denom;
 
   if(argc == 1 ||
     (argc == 2 && (
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
   while(getopt(argc, argv, "f:") != -1)
   {
     if(optarg == NULL) exit(1);
-    if((sscanf(optarg, "%lf", &d) != 1) || (d <= 0))
+    if((sscanf(optarg, "%lf", &fiddleFactor) != 1) || (fiddleFactor <= 0))
     {
       printf("%s", err_argf);
       exit(1);
@@ -45,11 +46,17 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
+  if((sscanf(argv[optind++], "%i/%i", &nom, &denom) != 2) ||
+    (nom <= 0) || (denom <= 0))
+  {
+    printf("%s", usage);
+    exit(1);
+  }
+
   return 0;
 
   FILE *inputFile, *outputFile;
   pthread_t progressThread;
-  double factor = 1001.0 / 960.0;
   factor *= (1 + (0.5 / (90.0 * 60.0)));
   
   if((inputFile = fopen("sample.wav", "r")) == NULL)
