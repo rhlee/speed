@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  factor = nom / denom * fiddleFactor;
+  factor = (double)nom / (double)denom * fiddleFactor;
   
   if((inputFile = fopen(argv[optind++], "r")) == NULL)
     error(__LINE__, __FILE__);
