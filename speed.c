@@ -32,24 +32,52 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  while(getopt(argc, argv, "f:") != -1)
+  int optCount = 0;
+  char o;
+  int infoMode = 0;
+  char input[256];
+  while((o = getopt(argc, argv, "f:i:")) != -1)
   {
     if(optarg == NULL) exit(1);
-    if((sscanf(optarg, "%lf", &fiddleFactor) != 1) ||
-      (fiddleFactor <= 0))
+    switch(o)
     {
-      printf("%s", err_argf);
-      exit(1);
+      case 'f':
+	if((sscanf(optarg, "%lf", &fiddleFactor) != 1) ||
+	  (fiddleFactor <= 0))
+	{
+	  printf("%s", err_argf);
+	  exit(1);
+	}
+        break;
+      case 'i':
+	strncpy(input, optarg, 256);
+	infoMode = 1;
+	break;
+      default:
+        abort();
     }
+    optCount++;
+  }
+  if(optCount > 1)
+  {
+    printf("%s", usage);
+    exit(0);
   }
 
+  if(!infoMode) strncpy(input, argv[optind + 1], 256);
+
+  if((inputFile = fopen(input, "r")) == NULL)
+    error(__LINE__, __FILE__);
+
+  if(infoMode) exit(0);
+  
   if(argc - optind != 3)
   {
     printf("%s", usage);
     exit(1);
   }
 
-  if((sscanf(argv[optind++], "%i/%i", &nom, &denom) != 2) ||
+  if((sscanf(argv[optind], "%i/%i", &nom, &denom) != 2) ||
     (nom <= 0) || (denom <= 0))
   {
     printf("%s", usage);
@@ -58,9 +86,7 @@ int main(int argc, char *argv[])
 
   factor = (double)nom / (double)denom * fiddleFactor;
   
-  if((inputFile = fopen(argv[optind++], "r")) == NULL)
-    error(__LINE__, __FILE__);
-  if((outputFile = fopen(argv[optind], "w")) == NULL)
+  if((outputFile = fopen(argv[optind + 2], "w")) == NULL)
     error(__LINE__, __FILE__);
     
   if(setvbuf(inputFile, NULL, _IOFBF, 4096) ||
@@ -100,7 +126,7 @@ int main(int argc, char *argv[])
         (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
     fwrite(outputChannel, 2, 2, outputFile);
   }
-
+  close(0);
   exit(0);
 }
 
