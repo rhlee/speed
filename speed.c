@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
   }
 
   printf("Press enter to see progress, ctrl-c to quit");
+  fflush(stdout);
   if(pthread_create(&progressThread, NULL, progress, NULL) != 0)
     error(__LINE__, __FILE__);
 
@@ -100,17 +101,15 @@ int main(int argc, char *argv[])
         (inputTime - inputLowerSample - 0.5)) + lowerInputChannel[1];
     fwrite(outputChannel, 2, 2, outputFile);
   }
-
-  exit(0);
 }
 
 void *progress(void *ptr)
 {
   char c;
-  while(c = getchar())
+  while(read(0, &c, sizeof(c)) > 0)
   {
-    if(c == '\n')
-      printf("Processed %.1fM", inputLowerSample / 262144.0);
+    printf("Processed %.1fM", inputLowerSample / 262144.0);
+    fflush(stdout);
   }
   return NULL;
 }
