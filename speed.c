@@ -68,70 +68,61 @@ int main(int argc, char *argv[])
   if((inputFile = fopen(input, "r")) == NULL)
     error(__LINE__, __FILE__);
 
-  int ifd = fileno(inputFile);
-  int intDump;
-  char strDump[5];
-  
-  if(read(ifd, strDump, 4) != 4)
+  char header[054], *buffer;
+  if(read(fileno(inputFile), header, 0x2c) != 0x2c)
     error(__LINE__, __FILE__);
-  strDump[4] = 0;
-  if(strcmp(strDump, "RIFF"))
+
+  if(strncmp(&header[0], "RIFF", 04))
   {
-    printf("Can't find RIFF string.\n", strDump);
+    printf("Can't find RIFF string.\n");
     exit(1);
   }
+
+  buffer = &header[04];
+  printf("RIFF size: %u\n",
+    (buffer[0] & 0xff) +
+    ((buffer[1] & 0xff) << 010) +
+    ((buffer[2] & 0xff) << 020) +
+    ((buffer[3] & 0xff) << 030) );
   
-  if(read(ifd, &intDump, 4) != 4)
-    error(__LINE__, __FILE__);
-  printf("RIFF size: %u\n", intDump);
-  
-  if(lseek(ifd, 0xc, SEEK_SET) == -1)
-    error(__LINE__, __FILE__);
-  if(read(ifd, strDump, 4) != 4)
-    error(__LINE__, __FILE__);
-  strDump[4] = 0;
-  if(strcmp(strDump, "fmt "))
+  if(strncmp(&header[014], "fmt ", 04))
   {
-    printf("Can't find fmt string.\n", strDump);
+    printf("Can't find fmt string.\n");
     exit(1);
   }
-  
-  short shortDump, bps;
-  if(lseek(ifd, 0x16, SEEK_SET) == -1)
-    error(__LINE__, __FILE__);
-  if(read(ifd, &shortDump, 2) != 2)
-    error(__LINE__, __FILE__);
-  if(shortDump == 2)
+
+  buffer = &header[026];
+  if((buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010) == 2)
     printf("channels: 2\n");
   else
   {
-    printf("Only stereo channels are supported.\n", strDump);
+    printf("Only stereo channels are supported.\n");
     exit(1);
   }
-  
-  if(lseek(ifd, 0x22, SEEK_SET) == -1)
-    error(__LINE__, __FILE__);
-  if(read(ifd, &bps, 2) != 2)
-    error(__LINE__, __FILE__);
+
+  buffer = &header[042];
+  int bps = (buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010);
   if((bps == 16) || (bps == 32))
     printf("bps: %i\n", bps);
   else
   {
-    printf("Only 16 and 32 bps are supported.\n", strDump);
+    printf("Only 16 and 32 bps are supported.\n");
     exit(1);
   }
-
-  if(lseek(ifd, 0x28, SEEK_SET) == -1)
-    error(__LINE__, __FILE__);
-  if(read(ifd, &intDump, 4) != 4)
-    error(__LINE__, __FILE__);
-  printf("DATA size: %u\n", intDump);
-  int inputSamples = intDump / 4;
+  
+  buffer = &header[050];
+  int dataSize =
+      (buffer[0] & 0xff) +
+      ((buffer[1] & 0xff) << 010) +
+      ((buffer[2] & 0xff) << 020) +
+      ((buffer[3] & 0xff) << 030),
+    inputSamples = dataSize / 4;
   if(bps == 32) inputSamples /= 2;
+  printf("DATA size: %u\n", dataSize);
   
   if(infoMode) exit(0);
 
-  lseek(ifd, 0, SEEK_SET);
+  lseek(fileno(inputFile), 0, SEEK_SET);
   
   if(argc - optind != 3)
   {
