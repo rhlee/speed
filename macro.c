@@ -1,6 +1,7 @@
 long inputSample = -1, outputSample = 0;
 double inputTime;
 sample lowerInputChannel[2], upperInputChannel[2], outputChannel[2];
+int percent = 0, percentThreshold = -1;
 
 for(outputSample = 0; 1; outputSample++)
 {
@@ -12,6 +13,15 @@ for(outputSample = 0; 1; outputSample++)
     lowerInputChannel[1] = upperInputChannel[1];
     if(fread(upperInputChannel, sizeof(sample), 2, inputFile) != 2)
       exit(0);
+
+    if(inputSample > percentThreshold)
+    {
+      printf("%i%%\n", percent);
+      fflush(stdout);
+      percentThreshold = inputSamples * (percent + 0.5) / 100;
+      percent++;
+    }
+    
     inputSample++;
   }
   outputChannel[0] =

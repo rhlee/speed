@@ -127,6 +127,8 @@ int main(int argc, char *argv[])
   if(read(ifd, &intDump, 4) != 4)
     error(__LINE__, __FILE__);
   printf("DATA size: %u\n", intDump);
+  int inputSamples = intDump / 4;
+  if(bps == 32) inputSamples /= 2;
   
   if(infoMode) exit(0);
 
