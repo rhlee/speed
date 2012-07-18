@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     error(__LINE__, __FILE__);
   if(read(ifd, &intDump, 4) != 4)
     error(__LINE__, __FILE__);
-  printf("RIFF size: %u\n", intDump);
+  printf("DATA size: %u\n", intDump);
   
   if(infoMode) exit(0);
 
