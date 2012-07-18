@@ -69,7 +69,68 @@ int main(int argc, char *argv[])
   if((inputFile = fopen(input, "r")) == NULL)
     error(__LINE__, __FILE__);
 
+  int ifd = fileno(inputFile);
+  int intDump;
+  char strDump[5];
+  
+  if(read(ifd, strDump, 4) != 4)
+    error(__LINE__, __FILE__);
+  strDump[4] = 0;
+  if(strcmp(strDump, "RIFF"))
+  {
+    printf("Can't find RIFF string.\n", strDump);
+    exit(1);
+  }
+  
+  if(read(ifd, &intDump, 4) != 4)
+    error(__LINE__, __FILE__);
+  printf("RIFF size: %u\n", intDump);
+  
+  if(lseek(ifd, 0xc, SEEK_SET) == -1)
+    error(__LINE__, __FILE__);
+  if(read(ifd, strDump, 4) != 4)
+    error(__LINE__, __FILE__);
+  strDump[4] = 0;
+  if(strcmp(strDump, "fmt "))
+  {
+    printf("Can't find fmt string.\n", strDump);
+    exit(1);
+  }
+  
+  short shortDump, bps;
+  if(lseek(ifd, 0x16, SEEK_SET) == -1)
+    error(__LINE__, __FILE__);
+  if(read(ifd, &shortDump, 2) != 2)
+    error(__LINE__, __FILE__);
+  if(shortDump == 2)
+    printf("channels: 2\n");
+  else
+  {
+    printf("Only stereo channels are supported.\n", strDump);
+    exit(1);
+  }
+  
+  if(lseek(ifd, 0x22, SEEK_SET) == -1)
+    error(__LINE__, __FILE__);
+  if(read(ifd, &bps, 2) != 2)
+    error(__LINE__, __FILE__);
+  if((bps == 16) || (bps == 32))
+    printf("bps: %i\n", bps);
+  else
+  {
+    printf("Only 16 and 32 bps are supported.\n", strDump);
+    exit(1);
+  }
+
+  if(lseek(ifd, 0x28, SEEK_SET) == -1)
+    error(__LINE__, __FILE__);
+  if(read(ifd, &intDump, 4) != 4)
+    error(__LINE__, __FILE__);
+  printf("RIFF size: %u\n", intDump);
+  
   if(infoMode) exit(0);
+
+  lseek(ifd, 0, SEEK_SET);
   
   if(argc - optind != 3)
   {
@@ -92,12 +153,6 @@ int main(int argc, char *argv[])
   if(setvbuf(inputFile, NULL, _IOFBF, 4096) ||
     setvbuf(outputFile, NULL, _IOFBF, 4096))
     error(__LINE__, __FILE__);
-
-  if(sizeof(short) != 2)
-  {
-    fprintf(stderr, "Short is not 2 bytes\n");
-    exit(1);
-  }
 
   printf("Press enter to see progress, ctrl-c to quit");
   if(pthread_create(&progressThread, NULL, progress, NULL) != 0)
