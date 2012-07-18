@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
   double fiddleFactor = 1, factor;
   int nom, denom;
   FILE *inputFile, *outputFile;
-  pthread_t progressThread;
 
   if(argc == 1 ||
     (argc == 2 && (
@@ -156,11 +155,6 @@ int main(int argc, char *argv[])
     setvbuf(outputFile, NULL, _IOFBF, 4096))
     error(__LINE__, __FILE__);
 
-  printf("Press enter to see progress, ctrl-c to quit");
-  fflush(stdout);
-  if(pthread_create(&progressThread, NULL, progress, NULL) != 0)
-    error(__LINE__, __FILE__);
-
   if(bps == 16)
   {
     #define sample short
@@ -172,17 +166,6 @@ int main(int argc, char *argv[])
     #define sample int
     #include "macro.c"
   }
-}
-
-void *progress(void *ptr)
-{
-  char c;
-  while(read(0, &c, sizeof(c)) > 0)
-  {
-    printf("Processed %.1fM", inputLowerSample / 262144.0);
-    fflush(stdout);
-  }
-  return NULL;
 }
 
 void error(int line, char * file)

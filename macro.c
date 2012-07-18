@@ -1,7 +1,7 @@
 long inputSample = -1, outputSample = 0;
 double inputTime;
 sample lowerInputChannel[2], upperInputChannel[2], outputChannel[2];
-int percent = 0, percentThreshold = -1;
+int percent = 0, percentThreshold = -1, bars, i;
 
 for(outputSample = 0; 1; outputSample++)
 {
@@ -16,7 +16,11 @@ for(outputSample = 0; 1; outputSample++)
 
     if(inputSample > percentThreshold)
     {
-      printf("%i%%\n", percent);
+      bars = round(percent / 2.0);
+      printf("[");
+      for(i = 0; i < bars; i++) printf("=");
+      for(i = bars; i < 50; i++) printf("-");
+      printf("] %i%%\n", percent);
       fflush(stdout);
       percentThreshold = inputSamples * (percent + 0.5) / 100;
       percent++;
