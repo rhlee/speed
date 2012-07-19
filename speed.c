@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
   if((inputFile = fopen(input, "r")) == NULL)
     error(__LINE__, __FILE__);
 
-  char header[054], *buffer;
+  unsigned char header[054], *buffer;
   if(read(fileno(inputFile), header, 0x2c) != 0x2c)
     error(__LINE__, __FILE__);
 
@@ -111,14 +111,14 @@ int main(int argc, char *argv[])
   }
   
   buffer = &header[050];
-  int dataSize =
+  int inputDataSize =
       (buffer[0] & 0xff) +
       ((buffer[1] & 0xff) << 010) +
       ((buffer[2] & 0xff) << 020) +
       ((buffer[3] & 0xff) << 030),
-    inputSamples = dataSize / 4;
+    inputSamples = inputDataSize / 4;
   if(bps == 32) inputSamples /= 2;
-  printf("DATA size: %u\n", dataSize);
+  printf("DATA size: %u\n", inputDataSize);
   
   if(infoMode) exit(0);
 
@@ -146,6 +146,14 @@ int main(int argc, char *argv[])
     setvbuf(outputFile, NULL, _IOFBF, 4096))
     error(__LINE__, __FILE__);
 
+  int ofd = fileno(outputFile);
+  if(lseek(ofd, 054, SEEK_SET) == -1)
+    error(__LINE__, __FILE__);
+
+  long inputSample = -1, outputSample = 0;
+  double inputTime;
+  int percent = 0, percentThreshold = -1, bars, i, complete = 0;
+
   if(bps == 16)
   {
     #define sample short
@@ -157,6 +165,35 @@ int main(int argc, char *argv[])
     #define sample int
     #include "macro.c"
   }
+
+  fflush(outputFile);
+  
+  int outputDataSize = outputSample * (bps == 16 ? 4 : 8),
+    outputRiffSize = outputDataSize + 36;
+  printf("RIFF size: %i\n", outputRiffSize);
+  printf("DATA size: %i\n", outputDataSize);
+  
+  unsigned char *headerByte;
+  headerByte = &header[04];
+  *(headerByte++) = (outputRiffSize >> 000) & 0xff;
+  *(headerByte++) = (outputRiffSize >> 010) & 0xff;
+  *(headerByte++) = (outputRiffSize >> 020) & 0xff;
+  *(headerByte++) = (outputRiffSize >> 030) & 0xff;
+
+  headerByte = &header[050];
+  *(headerByte++) = (outputDataSize >> 000) & 0xff;
+  *(headerByte++) = (outputDataSize >> 010) & 0xff;
+  *(headerByte++) = (outputDataSize >> 020) & 0xff;
+  *(headerByte++) = (outputDataSize >> 030) & 0xff;
+  
+  if(lseek(ofd, 00, SEEK_SET) != 00)
+    error(__LINE__, __FILE__);
+
+  if(fwrite(header, sizeof(unsigned char), 054,  outputFile) != 054)
+    error(__LINE__, __FILE__);
+  
+  fclose(inputFile);
+  fclose(outputFile);
 }
 
 void error(int line, char * file)
