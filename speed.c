@@ -91,6 +91,18 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
+  buffer = &header[024];
+  int format = (buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010);
+  if(format == 1)
+    printf("encoding: PCM\n");
+  else if(format == 3)
+    printf("encoding: float\n");
+  else
+  {
+    printf("Only PCM and float encoding are supported.\n");
+    exit(1);
+  }
+  
   buffer = &header[026];
   if((buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010) == 2)
     printf("channels: 2\n");
@@ -154,8 +166,14 @@ int main(int argc, char *argv[])
   double inputTime;
   int percent = 0, percentThreshold = -1, bars, i, complete = 0;
 
-  if(bps == 16)
+  if(format == 3)
   {
+    #define sample float
+    #include "macro.c"
+  }
+  else if(bps == 16)
+  {
+    #undef sample
     #define sample short
     #include "macro.c"
   }
