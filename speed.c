@@ -214,6 +214,8 @@ int main(int argc, char *argv[])
   
   fclose(inputFile);
   fclose(outputFile);
+  
+  return 0;
 }
 
 void error(int line, char * file)
