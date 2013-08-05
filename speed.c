@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
   }
   
   buffer = &header[050];
-  int inputDataSize =
+  unsigned int inputDataSize =
       (buffer[0] & 0xff) +
       ((buffer[1] & 0xff) << 010) +
       ((buffer[2] & 0xff) << 020) +
