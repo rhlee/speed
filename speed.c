@@ -100,15 +100,17 @@ int main(int argc, char *argv[])
   if((inputFile = fopen(input, "r")) == NULL)
     error(__LINE__, __FILE__);
 
-  unsigned char header[054], *buffer;
-  if(read(fileno(inputFile), header, 0x2c) != 0x2c)
+  struct riff riff;
+  if(read(fileno(inputFile), &riff, 0x10) != 0x10)
     error(__LINE__, __FILE__);
+  
+  exit(3);
 
-  if(strncmp(&header[0], "RIFF", 04))
+  if(strncmp(riff.chunkID, "RIFF", 04))
   {
     printf("Can't find RIFF string.\n");
     exit(1);
-  }
+  }/*
 
   buffer = &header[04];
   printf("RIFF size: %u\n",
@@ -240,7 +242,7 @@ int main(int argc, char *argv[])
     error(__LINE__, __FILE__);
 
   if(fwrite(header, sizeof(unsigned char), 054,  outputFile) != 054)
-    error(__LINE__, __FILE__);
+    error(__LINE__, __FILE__);*/
   
   fclose(inputFile);
   fclose(outputFile);
