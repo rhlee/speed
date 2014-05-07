@@ -114,6 +114,12 @@ int main(int argc, char *argv[])
 
   printf("RIFF size: %u\n", riff.chunkSize);
   
+  if(strncmp(riff.format, "WAVE", 04))
+  {
+    printf("Can't find EAVE string.\n");
+    exit(1);
+  }
+  
   if(strncmp(riff.format, "fmt ", 04))
   {
     printf("Can't find fmt string.\n");
