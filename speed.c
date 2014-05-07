@@ -126,10 +126,22 @@ int main(int argc, char *argv[])
   {
     printf("Can't find fmt string\n");
     exit(1);
-  }/*
+  }
 
-  buffer = &header[024];
-  int format = (buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010);
+  switch (fmt.format) {
+    case 1:
+      printf("encoding: PCM\n");
+      break;
+    case 3:
+      printf("encoding: float\n");
+      break;
+    case 0xfffe:
+      printf("encoding: extended\n");
+      break;
+    default:
+    printf("Only PCM and float encoding are supported.\n");
+      break;
+  }/*
   if(format == 1)
     printf("encoding: PCM\n");
   else if(format == 3)
