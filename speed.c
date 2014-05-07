@@ -110,20 +110,15 @@ int main(int argc, char *argv[])
   {
     printf("Can't find RIFF string.\n");
     exit(1);
-  }/*
+  }
 
-  buffer = &header[04];
-  printf("RIFF size: %u\n",
-    (buffer[0] & 0xff) +
-    ((buffer[1] & 0xff) << 010) +
-    ((buffer[2] & 0xff) << 020) +
-    ((buffer[3] & 0xff) << 030) );
+  printf("RIFF size: %u\n", riff.chunkSize);
   
-  if(strncmp(&header[014], "fmt ", 04))
+  if(strncmp(riff.format, "fmt ", 04))
   {
     printf("Can't find fmt string.\n");
     exit(1);
-  }
+  }/*
 
   buffer = &header[024];
   int format = (buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010);
