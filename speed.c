@@ -10,13 +10,13 @@
 #define WAVE_FORMAT_IEEE_FLOAT	0x0003
 #define WAVE_FORMAT_EXTENSIBLE	0xfffe
 
-struct riff {
+struct __attribute__((packed)) riff {
   char chunkID[4];
   uint32_t chunkSize;
   char format[4];
 };
 
-struct fmt {
+struct __attribute__((packed)) fmt {
   char chunkID[4];
   uint32_t chunkSize;
   uint16_t format;
@@ -130,19 +130,53 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
+  short format;
+  struct extension extension;
+
   switch (fmt.format) {
     case WAVE_FORMAT_PCM:
       printf("encoding: PCM\n");
+      format = fmt.format;
       break;
     case WAVE_FORMAT_IEEE_FLOAT:
       printf("encoding: float\n");
+      format = fmt.format;
       break;
     case WAVE_FORMAT_EXTENSIBLE:
       printf("encoding: extended\n");
-      exit(4);
+      uint16_t extensionSize;
+      if(read(fileno(inputFile), &extensionSize, 0x2) != 0x2)
+        error(__LINE__, __FILE__);
+      if (extensionSize != 0x16)
+      {
+        printf("Invalid extension size\n");
+        exit(1);
+      }
+      if(read(fileno(inputFile), &extension, 0x16) != 0x16)
+        error(__LINE__, __FILE__);
+      format = extension.guid2;
+      if(strncmp(extension.guid14,
+        "\x00\x00\x00\x00\x10\x00\x80\x00\x00\xAA\x00\x38\x9B\x71", 14))
+      {
+        printf("Can't find GUID string\n");
+        exit(1);
+      }
+      switch (format) {
+        case WAVE_FORMAT_PCM:
+          printf("extended encoding: PCM\n");
+          break;
+        case WAVE_FORMAT_IEEE_FLOAT:
+          printf("extended encoding: float\n");
+          break;
+        default:
+          printf("Extended encoding not supported.\n");
+          exit(1);
+          break;
+        }
       break;
     default:
       printf("Encoding not supported.\n");
+      exit(1);
       break;
   }
   
