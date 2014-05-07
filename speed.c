@@ -104,8 +104,6 @@ int main(int argc, char *argv[])
   if(read(fileno(inputFile), &riff, 0x10) != 0x10)
     error(__LINE__, __FILE__);
   
-  exit(3);
-
   if(strncmp(riff.chunkID, "RIFF", 04))
   {
     printf("Can't find RIFF string.\n");
