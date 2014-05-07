@@ -117,10 +117,14 @@ int main(int argc, char *argv[])
     printf("Can't find EAVE string.\n");
     exit(1);
   }
-  
-  if(strncmp(riff.format, "fmt ", 04))
+
+  struct fmt fmt;
+  if(read(fileno(inputFile), &fmt, 0x1c) != 0x1c)
+    error(__LINE__, __FILE__);
+
+  if(strncmp(fmt.chunkID, "fmt ", 04))
   {
-    printf("Can't find fmt string.\n");
+    printf("Can't find fmt string\n");
     exit(1);
   }/*
 
