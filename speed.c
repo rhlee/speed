@@ -8,6 +8,10 @@
 #include <string.h>
 #include <stdint.h>
 
+#define WAVE_FORMAT_PCM		0x0001
+#define WAVE_FORMAT_IEEE_FLOAT	0x0003
+#define WAVE_FORMAT_EXTENSIBLE	0xfffe
+
 struct riff {
   char chunkID[4];
   uint32_t chunkSize;
@@ -129,19 +133,19 @@ int main(int argc, char *argv[])
   }
 
   switch (fmt.format) {
-    case 1:
+    case WAVE_FORMAT_PCM:
       printf("encoding: PCM\n");
       break;
-    case 3:
+    case WAVE_FORMAT_IEEE_FLOAT:
       printf("encoding: float\n");
       break;
-    case 0xfffe:
+    case WAVE_FORMAT_EXTENSIBLE:
       printf("encoding: extended\n");
       break;
     default:
-    printf("Only PCM and float encoding are supported.\n");
+      printf("Encoding not supported.\n");
       break;
-  }
+  }/*
   
   if(fmt.channels == 2)
     printf("channels: 2\n");
