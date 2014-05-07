@@ -17,7 +17,7 @@ struct riff {
 struct fmt {
   char chunkID[4];
   uint32_t chunkSize;
-  uint32_t format;
+  uint16_t format;
   uint16_t channels;
   uint32_t sampleRate;
   uint32_t byteRate;
