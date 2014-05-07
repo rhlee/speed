@@ -141,25 +141,15 @@ int main(int argc, char *argv[])
     default:
     printf("Only PCM and float encoding are supported.\n");
       break;
-  }/*
-  if(format == 1)
-    printf("encoding: PCM\n");
-  else if(format == 3)
-    printf("encoding: float\n");
-  else
-  {
-    printf("Only PCM and float encoding are supported.\n");
-    exit(1);
   }
   
-  buffer = &header[026];
-  if((buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010) == 2)
+  if(fmt.channels == 2)
     printf("channels: 2\n");
   else
   {
     printf("Only stereo channels are supported.\n");
     exit(1);
-  }
+  }/*
 
   buffer = &header[042];
   int bps = (buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010);
