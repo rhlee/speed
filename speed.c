@@ -32,6 +32,11 @@ struct extension {
   char guid14[14];
 };
 
+struct data {
+  char chunkID[4];
+  uint32_t chunkSize;
+};
+
 char usage[] =
   "Usage:\n";
 char err_argf[] =
