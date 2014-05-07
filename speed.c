@@ -27,14 +27,14 @@ struct fmt {
   uint16_t bitsPerSample;
 };
 
-struct extension {
+struct __attribute__((packed)) extension {
   uint16_t validBitsPerSample;
   uint32_t channelMask;
   uint16_t guid2;
   char guid14[14];
 };
 
-struct data {
+struct __attribute__((packed)) data {
   char chunkID[4];
   uint32_t chunkSize;
 };
