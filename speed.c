@@ -149,17 +149,15 @@ int main(int argc, char *argv[])
   {
     printf("Only stereo channels are supported.\n");
     exit(1);
-  }/*
+  }
 
-  buffer = &header[042];
-  int bps = (buffer[0] & 0xff) + ((buffer[1] & 0xff) << 010);
-  if((bps == 16) || (bps == 32))
-    printf("bps: %i\n", bps);
+  if((fmt.bitsPerSample == 16) || (fmt.bitsPerSample == 32))
+    printf("bps: %i\n", fmt.bitsPerSample);
   else
   {
     printf("Only 16 and 32 bps are supported.\n");
     exit(1);
-  }
+  }/*
   
   buffer = &header[050];
   unsigned int inputDataSize =
