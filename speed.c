@@ -6,6 +6,31 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdint.h>
+
+struct riff {
+  char chunkID[4];
+  uint32_t chunkSize;
+  char format[4];
+};
+
+struct fmt {
+  char chunkID[4];
+  uint32_t chunkSize;
+  uint32_t format;
+  uint16_t channels;
+  uint32_t sampleRate;
+  uint32_t byteRate;
+  uint16_t blockAlign;
+  uint16_t bitsPerSample;
+};
+
+struct extension {
+  uint16_t validBitsPerSample;
+  uint32_t channelMask;
+  uint16_t guid2;
+  char guid14[14];
+};
 
 char usage[] =
   "Usage:\n";
