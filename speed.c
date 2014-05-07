@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     error(__LINE__, __FILE__);
 
   struct riff riff;
-  if(read(fileno(inputFile), &riff, 0x10) != 0x10)
+  if(read(fileno(inputFile), &riff, 0xc) != 0xc)
     error(__LINE__, __FILE__);
   
   if(strncmp(riff.chunkID, "RIFF", 04))
