@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   }
 
   struct fmt fmt;
-  if(read(fileno(inputFile), &fmt, 0x1c) != 0x1c)
+  if(read(fileno(inputFile), &fmt, 0x1a) != 0x1a)
     error(__LINE__, __FILE__);
 
   if(strncmp(fmt.chunkID, "fmt ", 04))
