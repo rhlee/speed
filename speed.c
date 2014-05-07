@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
       break;
     case WAVE_FORMAT_EXTENSIBLE:
       printf("encoding: extended\n");
+      exit(4);
       break;
     default:
       printf("Encoding not supported.\n");
