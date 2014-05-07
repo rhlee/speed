@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     default:
       printf("Encoding not supported.\n");
       break;
-  }/*
+  }
   
   if(fmt.channels == 2)
     printf("channels: 2\n");
