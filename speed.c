@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
   }
   unsigned int inputSamples = data.chunkSize / 4;
   if(fmt.bitsPerSample == 32) inputSamples /= 2;
-  printf("DATA size: %u\n", data.chunkSize);/*
+  printf("DATA size: %u\n", data.chunkSize);
   
   if(infoMode) exit(0);
 
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
     
   if(setvbuf(inputFile, NULL, _IOFBF, 4096) ||
     setvbuf(outputFile, NULL, _IOFBF, 4096))
-    error(__LINE__, __FILE__);
+    error(__LINE__, __FILE__);/*
 
   int ofd = fileno(outputFile);
   if(lseek(ofd, 054, SEEK_SET) == -1)
