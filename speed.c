@@ -236,8 +236,8 @@ int main(int argc, char *argv[])
     error(__LINE__, __FILE__);
 
   int ofd = fileno(outputFile);
-//  if(lseek(ofd, 054, SEEK_SET) == -1)
-//    error(__LINE__, __FILE__);
+  if(lseek(ofd, ftell(inputFile), SEEK_SET) == -1)
+    error(__LINE__, __FILE__);
 
   long inputSample = -1, outputSample = 0;
   double inputTime;
