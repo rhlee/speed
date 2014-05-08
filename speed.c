@@ -194,17 +194,20 @@ int main(int argc, char *argv[])
   {
     printf("Only 16 and 32 bps are supported.\n");
     exit(1);
-  }/*
-  
-  buffer = &header[050];
-  unsigned int inputDataSize =
-      (buffer[0] & 0xff) +
-      ((buffer[1] & 0xff) << 010) +
-      ((buffer[2] & 0xff) << 020) +
-      ((buffer[3] & 0xff) << 030),
-    inputSamples = inputDataSize / 4;
-  if(bps == 32) inputSamples /= 2;
-  printf("DATA size: %u\n", inputDataSize);
+  }
+
+  struct data data;
+
+  if(read(fileno(inputFile), &data, 0x8) != 0x8)
+    error(__LINE__, __FILE__);
+  if(strncmp(data.chunkID, "data", 04))
+  {
+    printf("Can't find data string\n");
+    exit(1);
+  }
+  unsigned int inputSamples = data.chunkSize / 4;
+  if(fmt.bitsPerSample == 32) inputSamples /= 2;
+  printf("DATA size: %u\n", data.chunkSize);/*
   
   if(infoMode) exit(0);
 
