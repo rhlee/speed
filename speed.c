@@ -233,11 +233,11 @@ int main(int argc, char *argv[])
     
   if(setvbuf(inputFile, NULL, _IOFBF, 4096) ||
     setvbuf(outputFile, NULL, _IOFBF, 4096))
-    error(__LINE__, __FILE__);/*
+    error(__LINE__, __FILE__);
 
   int ofd = fileno(outputFile);
-  if(lseek(ofd, 054, SEEK_SET) == -1)
-    error(__LINE__, __FILE__);
+//  if(lseek(ofd, 054, SEEK_SET) == -1)
+//    error(__LINE__, __FILE__);
 
   long inputSample = -1, outputSample = 0;
   double inputTime;
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
     #define sample float
     #include "macro.c"
   }
-  else if(bps == 16)
+  else if(fmt.bitsPerSample == 16)
   {
     #undef sample
     #define sample short
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
     #undef sample
     #define sample int
     #include "macro.c"
-  }
+  }/*
 
   fflush(outputFile);
   
