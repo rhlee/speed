@@ -253,8 +253,13 @@ int main(int argc, char *argv[])
     setvbuf(outputFile, NULL, _IOFBF, 4096))
     error(__LINE__, __FILE__);
 
+  int totalHeaderSize = RIFF_CHUNK_SIZE + FMT_CHUNK_SIZE + \
+    (fmt.format == WAVE_FORMAT_EXTENSIBLE ? \
+      EXTENSION_SIZE_SIZE + EXTENSION_CHUNK_SIZE : 0) + \
+    DATA_CHUNK_HEADER_SIZE;
+
   int ofd = fileno(outputFile);
-  if(lseek(ofd, ftell(inputFile), SEEK_SET) == -1)
+  if(lseek(ofd, totalHeaderSize, SEEK_SET) == -1)
     error(__LINE__, __FILE__);
 
   long inputSample = -1, outputSample = 0;
@@ -300,11 +305,7 @@ int main(int argc, char *argv[])
   *(headerByte++) = (outputDataSize >> 030) & 0xff;*/
 
   data.chunkSize = outputSample * (fmt.bitsPerSample == 16 ? 4 : 8);
-  riff.chunkSize = \
-    4 + FMT_CHUNK_SIZE + \
-    (fmt.format == WAVE_FORMAT_EXTENSIBLE ? \
-      EXTENSION_SIZE_SIZE + EXTENSION_CHUNK_SIZE : 0) + \
-    DATA_CHUNK_HEADER_SIZE + data.chunkSize;
+  riff.chunkSize = data.chunkSize + totalHeaderSize - 8;
   
   if(lseek(ofd, 00, SEEK_SET) != 00)
     error(__LINE__, __FILE__);
