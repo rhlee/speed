@@ -277,11 +277,11 @@ int main(int argc, char *argv[])
     #undef sample
     #define sample int
     #include "macro.c"
-  }/*
+  }
 
   fflush(outputFile);
   
-  int outputDataSize = outputSample * (bps == 16 ? 4 : 8),
+  /*int outputDataSize = outputSample * (bps == 16 ? 4 : 8),
     outputRiffSize = outputDataSize + 36;
   printf("RIFF size: %i\n", outputRiffSize);
   printf("DATA size: %i\n", outputDataSize);
@@ -297,13 +297,39 @@ int main(int argc, char *argv[])
   *(headerByte++) = (outputDataSize >> 000) & 0xff;
   *(headerByte++) = (outputDataSize >> 010) & 0xff;
   *(headerByte++) = (outputDataSize >> 020) & 0xff;
-  *(headerByte++) = (outputDataSize >> 030) & 0xff;
+  *(headerByte++) = (outputDataSize >> 030) & 0xff;*/
+
+  data.chunkSize = outputSample * (fmt.bitsPerSample == 16 ? 4 : 8);
+  riff.chunkSize = \
+    4 + FMT_CHUNK_SIZE + \
+    (fmt.format == WAVE_FORMAT_EXTENSIBLE ? \
+      EXTENSION_SIZE_SIZE + EXTENSION_CHUNK_SIZE : 0) + \
+    DATA_CHUNK_HEADER_SIZE + data.chunkSize;
   
   if(lseek(ofd, 00, SEEK_SET) != 00)
     error(__LINE__, __FILE__);
 
-  if(fwrite(header, sizeof(unsigned char), 054,  outputFile) != 054)
-    error(__LINE__, __FILE__);*/
+  if(fwrite(&riff, sizeof(unsigned char), RIFF_CHUNK_SIZE, outputFile) != \
+      RIFF_CHUNK_SIZE)
+    error(__LINE__, __FILE__);
+  if(fwrite(&fmt, sizeof(unsigned char), FMT_CHUNK_SIZE, outputFile) != \
+      FMT_CHUNK_SIZE)
+    error(__LINE__, __FILE__);
+  if(fmt.format == WAVE_FORMAT_EXTENSIBLE) {
+    uint16_t extension_chunk_size_data = EXTENSION_CHUNK_SIZE;
+    if(fwrite(&extension_chunk_size_data, sizeof(unsigned char), \
+          EXTENSION_SIZE_SIZE,  outputFile) != \
+        EXTENSION_SIZE_SIZE)
+      error(__LINE__, __FILE__);
+    if(fwrite(&extension, sizeof(unsigned char), EXTENSION_CHUNK_SIZE, \
+          outputFile) != \
+        EXTENSION_CHUNK_SIZE)
+      error(__LINE__, __FILE__);
+  }
+  if(fwrite(&data, sizeof(unsigned char), DATA_CHUNK_HEADER_SIZE, \
+        outputFile) != \
+      DATA_CHUNK_HEADER_SIZE)
+    error(__LINE__, __FILE__);
   
   fclose(inputFile);
   fclose(outputFile);
