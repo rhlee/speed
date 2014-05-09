@@ -6,15 +6,27 @@
 #include <string.h>
 #include <stdint.h>
 
+
+#define CASSERT(expn) typedef char __C_ASSERT__[(expn)?1:-1]
+
+
 #define WAVE_FORMAT_PCM		0x0001
 #define WAVE_FORMAT_IEEE_FLOAT	0x0003
 #define WAVE_FORMAT_EXTENSIBLE	0xfffe
+
+#define RIFF_CHUNK_SIZE 0xc
+#define FMT_CHUNK_SIZE 0x18
+#define EXTENSION_SIZE_SIZE 0x2
+#define EXTENSION_CHUNK_SIZE 0x16
+#define DATA_CHUNK_HEADER_SIZE 0x8
+
 
 struct __attribute__((packed)) riff {
   char chunkID[4];
   uint32_t chunkSize;
   char format[4];
 };
+CASSERT(sizeof(struct riff) == RIFF_CHUNK_SIZE);
 
 struct __attribute__((packed)) fmt {
   char chunkID[4];
@@ -26,6 +38,7 @@ struct __attribute__((packed)) fmt {
   uint16_t blockAlign;
   uint16_t bitsPerSample;
 };
+CASSERT(sizeof(struct fmt) == FMT_CHUNK_SIZE);
 
 struct __attribute__((packed)) extension {
   uint16_t validBitsPerSample;
@@ -33,11 +46,13 @@ struct __attribute__((packed)) extension {
   uint16_t guid2;
   char guid14[14];
 };
+CASSERT(sizeof(struct extension) == EXTENSION_CHUNK_SIZE);
 
 struct __attribute__((packed)) data {
   char chunkID[4];
   uint32_t chunkSize;
 };
+CASSERT(sizeof(struct data) == DATA_CHUNK_HEADER_SIZE);
 
 char usage[] =
   "Usage:\n";
@@ -103,7 +118,7 @@ int main(int argc, char *argv[])
     error(__LINE__, __FILE__);
 
   struct riff riff;
-  if(read(fileno(inputFile), &riff, 0xc) != 0xc)
+  if(read(fileno(inputFile), &riff, RIFF_CHUNK_SIZE) != RIFF_CHUNK_SIZE)
     error(__LINE__, __FILE__);
   
   if(strncmp(riff.chunkID, "RIFF", 04))
@@ -121,7 +136,7 @@ int main(int argc, char *argv[])
   }
 
   struct fmt fmt;
-  if(read(fileno(inputFile), &fmt, 0x18) != 0x18)
+  if(read(fileno(inputFile), &fmt, FMT_CHUNK_SIZE) != FMT_CHUNK_SIZE)
     error(__LINE__, __FILE__);
 
   if(strncmp(fmt.chunkID, "fmt ", 04))
@@ -145,14 +160,16 @@ int main(int argc, char *argv[])
     case WAVE_FORMAT_EXTENSIBLE:
       printf("encoding: extended\n");
       uint16_t extensionSize;
-      if(read(fileno(inputFile), &extensionSize, 0x2) != 0x2)
+      if(read(fileno(inputFile), &extensionSize, EXTENSION_SIZE_SIZE) != \
+          EXTENSION_SIZE_SIZE)
         error(__LINE__, __FILE__);
       if (extensionSize != 0x16)
       {
         printf("Invalid extension size\n");
         exit(1);
       }
-      if(read(fileno(inputFile), &extension, 0x16) != 0x16)
+      if(read(fileno(inputFile), &extension, EXTENSION_CHUNK_SIZE) != \
+          EXTENSION_CHUNK_SIZE)
         error(__LINE__, __FILE__);
       format = extension.guid2;
       if(strncmp(extension.guid14,
@@ -198,7 +215,8 @@ int main(int argc, char *argv[])
 
   struct data data;
 
-  if(read(fileno(inputFile), &data, 0x8) != 0x8)
+  if(read(fileno(inputFile), &data, DATA_CHUNK_HEADER_SIZE) != \
+      DATA_CHUNK_HEADER_SIZE)
     error(__LINE__, __FILE__);
   if(strncmp(data.chunkID, "data", 04))
   {
