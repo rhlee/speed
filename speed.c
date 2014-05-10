@@ -65,8 +65,7 @@ void *progress(void *ptr);
 
 long inputLowerSample;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   double fiddleFactor = 1, factor;
   int nom, denom;
   FILE *inputFile, *outputFile;
@@ -74,8 +73,7 @@ int main(int argc, char *argv[])
   if(argc == 1 ||
     (argc == 2 && (
       !strncmp(argv[1], "-h", 3) ||
-      !strncmp(argv[1], "--help", 3) )))
-  {
+      !strncmp(argv[1], "--help", 3) ))) {
     printf("%s", usage);
     exit(0);
   }
@@ -84,11 +82,9 @@ int main(int argc, char *argv[])
   char o;
   int infoMode = 0;
   char input[256];
-  while((o = getopt(argc, argv, "f:i:")) != -1)
-  {
+  while((o = getopt(argc, argv, "f:i:")) != -1) {
     if(optarg == NULL) exit(1);
-    switch(o)
-    {
+    switch(o) {
       case 'f':
 	if((sscanf(optarg, "%lf", &fiddleFactor) != 1) ||
 	  (fiddleFactor <= 0))
@@ -106,8 +102,7 @@ int main(int argc, char *argv[])
     }
     optCount++;
   }
-  if(optCount > 1)
-  {
+  if(optCount > 1) {
     printf("%s", usage);
     exit(0);
   }
@@ -121,16 +116,14 @@ int main(int argc, char *argv[])
   if(read(fileno(inputFile), &riff, RIFF_CHUNK_SIZE) != RIFF_CHUNK_SIZE)
     error(__LINE__, __FILE__);
   
-  if(strncmp(riff.chunkID, "RIFF", 04))
-  {
+  if(strncmp(riff.chunkID, "RIFF", 04)) {
     printf("Can't find RIFF string.\n");
     exit(1);
   }
 
   printf("RIFF size: %u\n", riff.chunkSize);
   
-  if(strncmp(riff.format, "WAVE", 04))
-  {
+  if(strncmp(riff.format, "WAVE", 04)) {
     printf("Can't find EAVE string.\n");
     exit(1);
   }
@@ -139,8 +132,7 @@ int main(int argc, char *argv[])
   if(read(fileno(inputFile), &fmt, FMT_CHUNK_SIZE) != FMT_CHUNK_SIZE)
     error(__LINE__, __FILE__);
 
-  if(strncmp(fmt.chunkID, "fmt ", 04))
-  {
+  if(strncmp(fmt.chunkID, "fmt ", 04)) {
     printf("Can't find fmt string\n");
     exit(1);
   }
@@ -163,8 +155,7 @@ int main(int argc, char *argv[])
       if(read(fileno(inputFile), &extensionSize, EXTENSION_SIZE_SIZE) != \
           EXTENSION_SIZE_SIZE)
         error(__LINE__, __FILE__);
-      if (extensionSize != 0x16)
-      {
+      if (extensionSize != 0x16) {
         printf("Invalid extension size\n");
         exit(1);
       }
@@ -173,8 +164,7 @@ int main(int argc, char *argv[])
         error(__LINE__, __FILE__);
       format = extension.guid2;
       if(strncmp(extension.guid14,
-        "\x00\x00\x00\x00\x10\x00\x80\x00\x00\xAA\x00\x38\x9B\x71", 14))
-      {
+        "\x00\x00\x00\x00\x10\x00\x80\x00\x00\xAA\x00\x38\x9B\x71", 14)) {
         printf("Can't find GUID string\n");
         exit(1);
       }
@@ -199,16 +189,14 @@ int main(int argc, char *argv[])
   
   if(fmt.channels == 2)
     printf("channels: 2\n");
-  else
-  {
+  else {
     printf("Only stereo channels are supported.\n");
     exit(1);
   }
 
   if((fmt.bitsPerSample == 16) || (fmt.bitsPerSample == 32))
     printf("bps: %i\n", fmt.bitsPerSample);
-  else
-  {
+  else {
     printf("Only 16 and 32 bps are supported.\n");
     exit(1);
   }
@@ -218,8 +206,7 @@ int main(int argc, char *argv[])
   if(read(fileno(inputFile), &data, DATA_CHUNK_HEADER_SIZE) != \
       DATA_CHUNK_HEADER_SIZE)
     error(__LINE__, __FILE__);
-  if(strncmp(data.chunkID, "data", 04))
-  {
+  if(strncmp(data.chunkID, "data", 04)) {
     printf("Can't find data string\n");
     exit(1);
   }
@@ -231,15 +218,13 @@ int main(int argc, char *argv[])
 
   lseek(fileno(inputFile), 0, SEEK_SET);
   
-  if(argc - optind != 3)
-  {
+  if(argc - optind != 3) {
     printf("%s", usage);
     exit(1);
   }
 
   if((sscanf(argv[optind], "%i/%i", &nom, &denom) != 2) ||
-    (nom <= 0) || (denom <= 0))
-  {
+    (nom <= 0) || (denom <= 0)) {
     printf("%s", usage);
     exit(1);
   }
@@ -266,19 +251,16 @@ int main(int argc, char *argv[])
   double inputTime;
   int percent = 0, percentThreshold = -1, bars, i, complete = 0;
 
-  if(format == 3)
-  {
+  if(format == 3) {
     #define sample float
     #include "macro.c"
   }
-  else if(fmt.bitsPerSample == 16)
-  {
+  else if(fmt.bitsPerSample == 16) {
     #undef sample
     #define sample short
     #include "macro.c"
   }
-  else
-  {
+  else {
     #undef sample
     #define sample int
     #include "macro.c"
@@ -338,8 +320,7 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-void error(int line, char * file)
-{
+void error(int line, char * file) {
   printf("[%s:%i] Last set error code is %i: %s\n"
     "Use gdb to catch this SIGTRAP\n",
     file, line, errno, strerror(errno));
