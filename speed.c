@@ -71,9 +71,9 @@ int main(int argc, char *argv[]) {
   FILE *inputFile, *outputFile;
 
   if(argc == 1 ||
-    (argc == 2 && (
-      !strncmp(argv[1], "-h", 3) ||
-      !strncmp(argv[1], "--help", 3) ))) {
+      (argc == 2 && (
+        !strncmp(argv[1], "-h", 3) ||
+        !strncmp(argv[1], "--help", 3) ))) {
     printf("%s", usage);
     exit(0);
   }
@@ -86,17 +86,16 @@ int main(int argc, char *argv[]) {
     if(optarg == NULL) exit(1);
     switch(o) {
       case 'f':
-	if((sscanf(optarg, "%lf", &fiddleFactor) != 1) ||
-	  (fiddleFactor <= 0))
-	{
-	  printf("%s", err_argf);
-	  exit(1);
-	}
+        if((sscanf(optarg, "%lf", &fiddleFactor) != 1) ||
+            (fiddleFactor <= 0)) {
+          printf("%s", err_argf);
+          exit(1);
+        }
         break;
       case 'i':
-	strncpy(input, optarg, 256);
-	infoMode = 1;
-	break;
+        strncpy(input, optarg, 256);
+        infoMode = 1;
+        break;
       default:
         abort();
     }
@@ -267,24 +266,6 @@ int main(int argc, char *argv[]) {
   }
 
   fflush(outputFile);
-  
-  /*int outputDataSize = outputSample * (bps == 16 ? 4 : 8),
-    outputRiffSize = outputDataSize + 36;
-  printf("RIFF size: %i\n", outputRiffSize);
-  printf("DATA size: %i\n", outputDataSize);
-  
-  unsigned char *headerByte;
-  headerByte = &header[04];
-  *(headerByte++) = (outputRiffSize >> 000) & 0xff;
-  *(headerByte++) = (outputRiffSize >> 010) & 0xff;
-  *(headerByte++) = (outputRiffSize >> 020) & 0xff;
-  *(headerByte++) = (outputRiffSize >> 030) & 0xff;
-
-  headerByte = &header[050];
-  *(headerByte++) = (outputDataSize >> 000) & 0xff;
-  *(headerByte++) = (outputDataSize >> 010) & 0xff;
-  *(headerByte++) = (outputDataSize >> 020) & 0xff;
-  *(headerByte++) = (outputDataSize >> 030) & 0xff;*/
 
   data.chunkSize = outputSample * (fmt.bitsPerSample == 16 ? 4 : 8);
   riff.chunkSize = data.chunkSize + totalHeaderSize - 8;
